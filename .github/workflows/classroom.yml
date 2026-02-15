@@ -1,0 +1,79 @@
+name: GitHub Classroom Autograding
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  checks: write
+  actions: read
+  contents: read
+
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check for python-package.yml
+      id: check_package_file
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: 'Check for python-package.yml'
+        command: 'ls .github/workflows/python-package.yml'
+        input: ''
+        expected-output: 'python-package.yml'
+        comparison-method: 'included'
+        max-score: 1
+
+    - name: Check python-package.yml content
+      id: check_package_content
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: 'Check python-package.yml content'
+        command: 'grep "pytest" .github/workflows/python-package.yml'
+        input: ''
+        expected-output: 'pytest'
+        comparison-method: 'included'
+        max-score: 1
+
+    - name: Check for python-coverage.yml
+      id: check_coverage_file
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: 'Check for python-coverage.yml'
+        command: 'ls .github/workflows/python-coverage.yml'
+        input: ''
+        expected-output: 'python-coverage.yml'
+        comparison-method: 'included'
+        max-score: 1
+
+    - name: Check python-coverage.yml content
+      id: check_coverage_content
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: 'Check python-coverage.yml content'
+        command: 'grep "pytest --cov=src" .github/workflows/python-coverage.yml'
+        input: ''
+        expected-output: 'pytest --cov=src'
+        comparison-method: 'included'
+        max-score: 1
+
+    - name: Check for uncommented test
+      id: check_test_uncommented
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: 'Check for uncommented test'
+        command: 'if grep -q "# def test_get_nth_fibonacci_ten" tests/calculations_test.py; then exit 1; else exit 0; fi'
+        max-score: 1
+
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        runners: check_package_file,check_package_content,check_coverage_file,check_coverage_content,check_test_uncommented
+      with:
+        runners: check_package_file,check_package_content,check_coverage_file,check_coverage_content,check_test_uncommented
